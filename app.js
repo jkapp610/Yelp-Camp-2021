@@ -3,7 +3,7 @@ const express = require("express");
 const path = require("path");
 
 
-const campground = require("./models/campground");
+const Campground = require("./models/campground");
 
 const mongoose = require("mongoose");
 
@@ -36,16 +36,30 @@ app.get("/", function(req,res){
 
 })
 
-// setting up a  express get route
-app.get("/campground", async function(req,res){
+// setting up a  express get route for index
+app.get("/campgrounds", async function(req,res){
     // finding all the campgrounds from database
-    const campgrounds =await campground.find({});
+    const campgrounds =await Campground.find({});
     //calling render to display the html page
     res.render("campgrounds/index.ejs",{campgrounds});
 
 
 
 })
+
+// setting up a  express get route for show route
+app.get("/campgrounds/:id", async function(req,res){
+
+    const myid= req.params.id;
+    const campground = await Campground.findById(myid)
+    
+    //calling render to display the html page
+    res.render("campgrounds/show",{campground});
+
+
+
+})
+
 
 app.listen(3000,function() {
     console.log(" APP is listining ON PORT 3000!")
