@@ -36,11 +36,14 @@ app.get("/", function(req,res){
 
 })
 
-app.get("/makecampground",  async function(req,res){
+// setting up a  express get route
+app.get("/campground", async function(req,res){
+    // finding all the campgrounds from database
+    const campgrounds =await campground.find({});
+    //calling render to display the html page
+    res.render("campgrounds/index.ejs",{campgrounds});
 
-   const camp = new campground({title:"My Backyard"});
-   await camp.save()
-   res.send(camp);
+
 
 })
 
