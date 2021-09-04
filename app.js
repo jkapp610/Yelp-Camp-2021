@@ -6,6 +6,7 @@ const path = require("path");
 const Campground = require("./models/campground");
 
 const mongoose = require("mongoose");
+const methodOverride = require("method-override");
 const campground = require("./models/campground");
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
@@ -28,6 +29,7 @@ app.set("view engine","ejs");
 app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride("_method"));
 
 
 app.get("/", function(req,res){
@@ -69,7 +71,7 @@ app.post('/campgrounds', async function(req, res)  {
 
 // setting up a  express get route for show route
 app.get("/campgrounds/:id", async function(req,res){
-
+    //look up camground useing id
     const myid= req.params.id;
     const campground = await Campground.findById(myid)
     
@@ -81,7 +83,38 @@ app.get("/campgrounds/:id", async function(req,res){
 })
 
 
+// setting up a  express get route for edit route
+app.get('/campgrounds/:id/edit', async  function(req, res)  {
+      //look up camground useing id
+    const campground = await Campground.findById(req.params.id)
+     //calling render to display the html page
+    res.render('campgrounds/edit', { campground });
+})
 
+
+// setting up a  express put route for edit route
+//this route will actually updat the database based on the form form the edit route
+app.put("/campgrounds/:id",async function(req,res){
+    //get id from the address pased in
+   const myid = req.params.id;
+   //find the id and update the campground
+   const campground = await Campground.findByIdAndUpdate(myid, { ...req.body.campground });
+   //calling redirect  back to the camground
+   res.redirect(`/campgrounds/${campground._id}`)
+
+
+})
+
+
+// setting up a  express get route for delete route
+app.delete("/campgrounds/:id", async function (req, res){
+    //get id from the address pased in
+    const myid = req.params.id;
+    // find id and delete ot from db
+    await Campground.findByIdAndDelete(myid);
+     //calling redirect to load the campground list
+    res.redirect("/campgrounds");
+})
 
 
 app.listen(3000,function() {
