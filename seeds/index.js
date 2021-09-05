@@ -29,13 +29,17 @@ const seedDB = async function(){
 
         // creating a random number form 1 to 1000 because there are 1000 cities in the  cities file
         const random1000= Math.floor(Math.random()  * 1000);
-
+        const randprice= Math.floor(Math.random()  *20)+10;
+        
         
 
          //making a new databse campgroung entry
         const camp =  new campground({
         location: `${cities[random1000].city}, ${cities[random1000].state}`,
-        title: `${sample(descriptors)} ${sample(places)}`
+        title: `${sample(descriptors)} ${sample(places)}`,
+        image: "https://source.unsplash.com/collection/483251",
+        description: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloribus sint cum eaque. Maiores similique vel, sed libero est deserunt quo beatae quibusdam sequi architecto quae ea quas laborum, praesentium necessitatibus.",
+        price: randprice
         })
         await camp.save()
     }
