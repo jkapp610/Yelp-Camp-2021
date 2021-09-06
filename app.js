@@ -8,7 +8,7 @@ const Campground = require("./models/campground");
 const mongoose = require("mongoose");
 const ejsMate = require("ejs-mate");
 const methodOverride = require("method-override");
-const campground = require("./models/campground");
+const catchAsync = require("./utils/catchAsync");
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp', {
     useNewUrlParser: true,
@@ -61,17 +61,19 @@ app.get("/campgrounds/new",function(req,res){
 //setting up post route for submiiting a  the form for new campground
 //this route will be ran when the form is submitted and handle updating the database
 
-app.post('/campgrounds', async function(req, res)  {
-
-    
+app.post('/campgrounds', catchAsync( async function(req, res,next)  {
     const campground = new Campground(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`)
-})
+    
+    
+        
+    
+}))
 
 
 // setting up a  express get route for show route
-app.get("/campgrounds/:id", async function(req,res){
+app.get("/campgrounds/:id", catchAsync( async function(req,res){
     //look up camground useing id
     const myid= req.params.id;
     const campground = await Campground.findById(myid)
@@ -81,21 +83,21 @@ app.get("/campgrounds/:id", async function(req,res){
 
 
 
-})
+}))
 
 
 // setting up a  express get route for edit route
-app.get('/campgrounds/:id/edit', async  function(req, res)  {
+app.get('/campgrounds/:id/edit',catchAsync( async  function(req, res)  {
       //look up camground useing id
     const campground = await Campground.findById(req.params.id)
      //calling render to display the html page
     res.render('campgrounds/edit', { campground });
-})
+}))
 
 
 // setting up a  express put route for edit route
 //this route will actually updat the database based on the form form the edit route
-app.put("/campgrounds/:id",async function(req,res){
+app.put("/campgrounds/:id", catchAsync( async function(req,res){
     //get id from the address pased in
    const myid = req.params.id;
    //find the id and update the campground
@@ -104,7 +106,7 @@ app.put("/campgrounds/:id",async function(req,res){
    res.redirect(`/campgrounds/${campground._id}`)
 
 
-})
+}))
 
 
 // setting up a  express get route for delete route
@@ -115,6 +117,11 @@ app.delete("/campgrounds/:id", async function (req, res){
     await Campground.findByIdAndDelete(myid);
      //calling redirect to load the campground list
     res.redirect("/campgrounds");
+})
+
+//basic error handler will get called if an error is happends
+app.use(function(err,req,res,next){
+    res.send("oh boy somthing went wrong")
 })
 
 
