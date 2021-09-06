@@ -5,10 +5,11 @@ class ExpressError extends Error{
     //constructor will get called automaticly when class is created
     constructor(message,statusCode){
         //super calls the parent constructor which is ERROR constructor in the case
+        super();
         this.message = message;
         this.statusCode = statusCode;
 
-        super();
+        
 
     }
 
