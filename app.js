@@ -7,6 +7,8 @@ const Campground = require("./models/campground");
 
 const mongoose = require("mongoose");
 const ejsMate = require("ejs-mate");
+const joi = require("joi");
+const{campgroundSchema} = require("./schemas.js")
 const methodOverride = require("method-override");
 const catchAsync = require("./utils/catchAsync");
 const ExpressError = require("./utils/ExpressError");
@@ -32,6 +34,25 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
+
+function validateCampground(req,res,next){
+
+   
+    //validate the camground
+    const result = campgroundSchema.validate(req.body);
+    //if there is an error
+    if(result.error){
+        //create error message by maping over details array 
+        const msg= result.error.details.map(el=>el.message).join(", ")
+        //throw new express error
+        throw new ExpressError(msg,400);
+    }
+    else{
+        next();
+    }
+
+
+}
 
 
 app.get("/", function(req,res){
@@ -62,9 +83,12 @@ app.get("/campgrounds/new",function(req,res){
 //setting up post route for submiiting a  the form for new campground
 //this route will be ran when the form is submitted and handle updating the database
 
-app.post('/campgrounds', catchAsync( async function(req, res,next)  {
+app.post('/campgrounds',validateCampground, catchAsync( async function(req, res,next)  {
 
-    if(!req.body.campground) throw new ExpressError("Invalid campground data",400)
+    //if(!req.body.campground) throw new ExpressError("Invalid campground data",400)
+
+    
+   
     const campground = new Campground(req.body.campground);
     await campground.save();
     res.redirect(`/campgrounds/${campground._id}`)
@@ -80,6 +104,7 @@ app.get("/campgrounds/:id", catchAsync( async function(req,res){
     //look up camground useing id
     const myid= req.params.id;
     const campground = await Campground.findById(myid)
+    
     
     //calling render to display the html page
     res.render("campgrounds/show",{campground});
@@ -100,7 +125,7 @@ app.get('/campgrounds/:id/edit',catchAsync( async  function(req, res)  {
 
 // setting up a  express put route for edit route
 //this route will actually updat the database based on the form form the edit route
-app.put("/campgrounds/:id", catchAsync( async function(req,res){
+app.put("/campgrounds/:id", validateCampground, catchAsync( async function(req,res){
     //get id from the address pased in
    const myid = req.params.id;
    //find the id and update the campground
@@ -126,6 +151,7 @@ app.delete("/campgrounds/:id", async function (req, res){
 app.all("*",function(req,res,next){
 
     next(new ExpressError("page not found",404));
+    console.log("this is being called");
 
     
 
@@ -135,10 +161,14 @@ app.all("*",function(req,res,next){
 app.use(function(err,req,res,next){
 
     //destructure from err and set defult values to 500 and "somthing went wrong if err does not have anything"
-    const {statusCode =500,message="somthing went worng"}=err;
+    const {statusCode =500,}=err;
+    if(!err.message){
+        err.message="somthing went worng"
+    }
 
     res.status(statusCode);
-    res.send(message);
+    //render error template (by defult it goes to views folder that is why ut us not included in file path)
+    res.render("error",{err})
 })
 
 
