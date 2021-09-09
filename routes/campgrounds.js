@@ -4,7 +4,7 @@ const catchAsync = require("../utils/catchAsync");
 const ExpressError = require("../utils/ExpressError");
 
 const Campground = require("../models/campground");
-
+const{isLoggedIn} = require("../middlewear")
 const{campgroundSchema} = require("../schemas.js");
 const campground = require("../models/campground");
 
@@ -48,17 +48,17 @@ router.get("/", catchAsync (async function(req,res){
 }))
 
 // setting up express get route for a form for adding new camground
-router.get("/new",function(req,res){
+router.get("/new", isLoggedIn, function(req,res){
 
     //calling render to display the html page
-    res.render("campgrounds/new")
+    res.render("campgrounds/new");   
 
 })
 
 //setting up post route for submiiting a  the form for new campground
 //this route will be ran when the form is submitted and handle updating the database
 
-router.post('/',validateCampground, catchAsync( async function(req, res,next)  {
+router.post('/',isLoggedIn,validateCampground, catchAsync( async function(req, res,next)  {
 
     //if(!req.body.campground) throw new ExpressError("Invalid campground data",400)
     //creating and saving campground
@@ -95,7 +95,7 @@ router.get("/:id", catchAsync( async function(req,res){
 
 
 // setting up a  express get route for edit route
-router.get('/:id/edit',catchAsync( async  function(req, res)  {
+router.get('/:id/edit',isLoggedIn,catchAsync( async  function(req, res)  {
       //look up camground useing id
     const campground = await Campground.findById(req.params.id)
 
@@ -110,7 +110,7 @@ router.get('/:id/edit',catchAsync( async  function(req, res)  {
 
 // setting up a  express put route for edit route
 //this route will actually updat the database based on the form form the edit route
-router.put("/:id", validateCampground, catchAsync( async function(req,res){
+router.put("/:id",isLoggedIn, validateCampground, catchAsync( async function(req,res){
     //get id from the address pased in
    const myid = req.params.id;
    //find the id and update the campground
@@ -127,7 +127,7 @@ router.put("/:id", validateCampground, catchAsync( async function(req,res){
 
 
 // setting up a  express get route for delete route
-router.delete("/:id",  catchAsync(async function (req, res){
+router.delete("/:id",isLoggedIn, catchAsync(async function (req, res){
     //get id from the address pased in
     const myid = req.params.id;
     // find id and delete ot from db
