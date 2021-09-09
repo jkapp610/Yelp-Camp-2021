@@ -7,11 +7,14 @@ const flash = require("connect-flash");
 const methodOverride = require("method-override");
 const ExpressError = require("./utils/ExpressError");
 
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+const User = require('./models/user');
 
 
-const campgrounds = require("./routes/campgrounds");
-
-const reviews = require("./routes/reviews");
+const userRoutes = require('./routes/users');
+const campgroundRoutes = require('./routes/campgrounds');
+const reviewRoutes = require('./routes/reviews');
 
 
 
@@ -54,6 +57,14 @@ const sessionconfig ={
 app.use(session(sessionconfig));
 app.use(flash());
 
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 app.use(function(req,res,next){
   res.locals.success= req.flash("success");
 
@@ -64,11 +75,9 @@ app.use(function(req,res,next){
 
 
 
-
-
-app.use("/campgrounds",campgrounds);
-
-app.use("/campgrounds/:id/reviews", reviews);
+app.use('/', userRoutes);
+app.use('/campgrounds', campgroundRoutes)
+app.use('/campgrounds/:id/reviews', reviewRoutes)
 
 app.get("/", function(req,res){
 
