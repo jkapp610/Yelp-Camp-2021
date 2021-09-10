@@ -1,37 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const catchAsync = require("../utils/catchAsync");
-const ExpressError = require("../utils/ExpressError");
+
 
 const Campground = require("../models/campground");
-const{isLoggedIn} = require("../middlewear")
-const{campgroundSchema} = require("../schemas.js");
-const campground = require("../models/campground");
+const{isLoggedIn,isAuthor,validateCampground} = require("../middlewear")
+
 
 //NOTE "coampgrounds on the res.render refers to the FOLDER inside views"
-
-
-
-function validateCampground(req,res,next){
-
-   
-    //validate the camground
-    const result = campgroundSchema.validate(req.body);
-    //if there is an error
-    if(result.error){
-        //create error message by maping over details array 
-        const msg= result.error.details.map(el=>el.message).join(", ")
-        //throw new express error
-        throw new ExpressError(msg,400);
-    }
-    else{
-        next();
-    }
-
-
-}
-
-
 
 // setting up a  express get route for index
 router.get("/", catchAsync (async function(req,res){
@@ -63,6 +39,7 @@ router.post('/',isLoggedIn,validateCampground, catchAsync( async function(req, r
     //if(!req.body.campground) throw new ExpressError("Invalid campground data",400)
     //creating and saving campground
      const campground = new Campground(req.body.campground);
+     campground.author = req.user._id
     await campground.save();
        //setting up flash message
     req.flash("success","successfully made a new campground!")
@@ -74,13 +51,18 @@ router.post('/',isLoggedIn,validateCampground, catchAsync( async function(req, r
     
 }))
 
-
 // setting up a  express get route for show route
 router.get("/:id", catchAsync( async function(req,res){
     //look up camground useing id
     const myid= req.params.id;
-    const campground = await Campground.findById(myid).populate('reviews');
-    
+    const campground = await Campground.findById(myid).populate({
+        path:'reviews',
+        populate:{
+            path: "author"
+        }
+    }).populate('author');
+    console.log(campground);
+    //if can't find it display error
     if (!campground) {
         req.flash('error', 'Cannot find that campground!');
         return res.redirect('/campgrounds');
@@ -95,9 +77,12 @@ router.get("/:id", catchAsync( async function(req,res){
 
 
 // setting up a  express get route for edit route
-router.get('/:id/edit',isLoggedIn,catchAsync( async  function(req, res)  {
+router.get('/:id/edit',isLoggedIn, isAuthor, catchAsync( async  function(req, res)  {
+
+    //get id from the address pased in
+    const myid = req.params.id;
       //look up camground useing id
-    const campground = await Campground.findById(req.params.id)
+    const campground = await Campground.findById(myid);
 
     if (!campground) {
         req.flash('error', 'Cannot find that campground!');
@@ -110,7 +95,7 @@ router.get('/:id/edit',isLoggedIn,catchAsync( async  function(req, res)  {
 
 // setting up a  express put route for edit route
 //this route will actually updat the database based on the form form the edit route
-router.put("/:id",isLoggedIn, validateCampground, catchAsync( async function(req,res){
+router.put("/:id",isLoggedIn, isAuthor, validateCampground, catchAsync( async function(req,res){
     //get id from the address pased in
    const myid = req.params.id;
    //find the id and update the campground
@@ -127,7 +112,7 @@ router.put("/:id",isLoggedIn, validateCampground, catchAsync( async function(req
 
 
 // setting up a  express get route for delete route
-router.delete("/:id",isLoggedIn, catchAsync(async function (req, res){
+router.delete("/:id",isLoggedIn, isAuthor, catchAsync(async function (req, res){
     //get id from the address pased in
     const myid = req.params.id;
     // find id and delete ot from db

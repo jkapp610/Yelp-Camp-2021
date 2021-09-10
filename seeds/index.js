@@ -35,11 +35,12 @@ const seedDB = async function(){
 
          //making a new databse campgroung entry
         const camp =  new campground({
-        location: `${cities[random1000].city}, ${cities[random1000].state}`,
-        title: `${sample(descriptors)} ${sample(places)}`,
-        image: "https://source.unsplash.com/collection/483251",
-        description: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloribus sint cum eaque. Maiores similique vel, sed libero est deserunt quo beatae quibusdam sequi architecto quae ea quas laborum, praesentium necessitatibus.",
-        price: randprice
+            author: "613a654221decc0dc90edd5e",
+            location: `${cities[random1000].city}, ${cities[random1000].state}`,
+            title: `${sample(descriptors)} ${sample(places)}`,
+            image: "https://source.unsplash.com/collection/483251",
+            description: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloribus sint cum eaque. Maiores similique vel, sed libero est deserunt quo beatae quibusdam sequi architecto quae ea quas laborum, praesentium necessitatibus.",
+            price: randprice
         })
         await camp.save()
     }
