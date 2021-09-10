@@ -2,6 +2,11 @@ const express = require("express");
 const router = express.Router();
 const catchAsync = require("../utils/catchAsync");
 const campgrounds = require("../controllers/campgrounds")
+const multer  = require('multer')
+
+const { storage } = require('../cloudinary');
+
+const upload = multer({ storage })
 
 
 const Campground = require("../models/campground");
@@ -15,7 +20,8 @@ router.route("/")
     .get( catchAsync (campgrounds.index))
      //setting up post route for submiiting a  the form for new campground
     //this route will be ran when the form is submitted and handle updating the database
-    .post(isLoggedIn,validateCampground, catchAsync(campgrounds.createCampground))
+    .post(isLoggedIn, upload.array('image'), validateCampground, catchAsync(campgrounds.createCampground))
+    
 
 
 // setting up express get route for a form for adding new camground

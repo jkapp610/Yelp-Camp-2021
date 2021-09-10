@@ -19,11 +19,17 @@ module.exports.rederNewForm = function(req,res){
 
 module.exports.createCampground = async function(req, res,next)  {
 
+    
+
     //if(!req.body.campground) throw new ExpressError("Invalid campground data",400)
     //creating and saving campground
      const campground = new Campground(req.body.campground);
+     //set the image to the array created from req.files.map
+     campground.images = req.files.map(f => ({ url: f.path, filename: f.filename }));
+     //set author to the logged in user
      campground.author = req.user._id
     await campground.save();
+    console.log(campground)
        //setting up flash message
     req.flash("success","successfully made a new campground!")
     //redirecting to the new camground page
