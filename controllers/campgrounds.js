@@ -1,4 +1,7 @@
 const Campground = require("../models/campground");
+const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
+const mapBoxToken = process.env.MAPBOX_TOKEN;
+const geocoder = mbxGeocoding({ accessToken: mapBoxToken });
 
 const { cloudinary } = require("../cloudinary");
 
@@ -22,22 +25,45 @@ module.exports.rederNewForm = function(req,res){
 module.exports.createCampground = async function(req, res,next)  {
 
     
+//    const geoData=await geocoder.forwardGeocode({
+//         query:req.body.campground.location,
+//         limit:1
+//     }).send()
+//     res.send()
+ 
+//     //creating and saving campground
+//      const campground = new Campground(req.body.campground);
+//      campground.geometry = geoData.body.features[0].geometry;
+//      //set the image to the array created from req.files.map
+//      campground.images = req.files.map(f => ({ url: f.path, filename: f.filename }));
+//      //set author to the logged in user
+//      campground.author = req.user._id
+//     await campground.save();
+//     console.log(campground)
+//        //setting up flash message
+//     req.flash("success","successfully made a new campground!")
+//     //redirecting to the new camground page
+//     res.redirect(`/campgrounds/${campground._id}`)
 
-    //if(!req.body.campground) throw new ExpressError("Invalid campground data",400)
-    //creating and saving campground
-     const campground = new Campground(req.body.campground);
-     //set the image to the array created from req.files.map
-     campground.images = req.files.map(f => ({ url: f.path, filename: f.filename }));
-     //set author to the logged in user
-     campground.author = req.user._id
-    await campground.save();
-    console.log(campground)
-       //setting up flash message
-    req.flash("success","successfully made a new campground!")
-    //redirecting to the new camground page
-    res.redirect(`/campgrounds/${campground._id}`)
-       
+
+
+
+
+const geoData = await geocoder.forwardGeocode({
+    query: req.body.campground.location,
+    limit: 1
+}).send()
+const campground = new Campground(req.body.campground);
+campground.geometry = geoData.body.features[0].geometry;
+campground.images = req.files.map(f => ({ url: f.path, filename: f.filename }));
+campground.author = req.user._id;
+await campground.save();
+console.log(campground);
+req.flash('success', 'Successfully made a new campground!');
+res.redirect(`/campgrounds/${campground._id}`)
 }
+       
+
 
 module.exports.showCampground = async function(req,res){
     //look up camground useing id
