@@ -32,7 +32,7 @@ router.route("/:id")
     .get(catchAsync(campgrounds.showCampground ))
     // setting up a  express put route for edit route
     //this route will actually updat the database based on the form form the edit route
-    .put(isLoggedIn, isAuthor, validateCampground, catchAsync( campgrounds.updateCampground))
+    .put(isLoggedIn, isAuthor, upload.array('image'), validateCampground, catchAsync(campgrounds.updateCampground))
     // setting up a  express get route for delete route
     .delete(isLoggedIn, isAuthor, catchAsync(campgrounds.deleteCampground));
 

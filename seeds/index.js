@@ -38,9 +38,23 @@ const seedDB = async function(){
             author: "613a654221decc0dc90edd5e",
             location: `${cities[random1000].city}, ${cities[random1000].state}`,
             title: `${sample(descriptors)} ${sample(places)}`,
-            image: "https://source.unsplash.com/collection/483251",
+           
             description: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Doloribus sint cum eaque. Maiores similique vel, sed libero est deserunt quo beatae quibusdam sequi architecto quae ea quas laborum, praesentium necessitatibus.",
-            price: randprice
+            price: randprice,
+            images: [
+                {
+                  url: 'https://res.cloudinary.com/dtvqf7web/image/upload/v1631309401/YelpCamp/unppqerrb2oj5hwnvi9s.jpg',
+                  filename: 'YelpCamp/v7sj49wxsy4438qmefhx',
+                  
+                },
+                {
+                  url: 'https://res.cloudinary.com/dtvqf7web/image/upload/v1631309384/YelpCamp/yc80tsqkexddcsdhjl3y.jpg',
+                  filename: 'YelpCamp/yc80tsqkexddcsdhjl3y',
+                 
+                }
+            ]
+            
+               
         })
         await camp.save()
     }
@@ -51,3 +65,6 @@ seedDB().then( function() {
     mongoose.connection.close();
     console.log("Database connection closed")
 })
+
+
+
