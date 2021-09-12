@@ -25,7 +25,7 @@ const seedDB = async function(){
     // delete all the data currently in database
     await campground.deleteMany({});
      // loop though 50 times to incert new data
-   for(let i=0; i<50;i++){
+   for(let i=0; i<300;i++){
 
         // creating a random number form 1 to 1000 because there are 1000 cities in the  cities file
         const random1000= Math.floor(Math.random()  * 1000);
