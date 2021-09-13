@@ -202,7 +202,7 @@ app.use(function(err,req,res,next){
     res.render("error",{err})
 })
 
-
-app.listen(3000,function() {
-    console.log(" APP is listining ON PORT 3000!")
+const port = process.env.PORT || 3000
+app.listen(port,function() {
+    console.log( `APP is listining ON PORT ${port}`);
 })
