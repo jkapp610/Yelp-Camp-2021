@@ -22,11 +22,16 @@ const helmet = require("helmet");
 const userRoutes = require('./routes/users');
 const campgroundRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews');
+const MongoStore = require('connect-mongo');
+
+
+//process.env.DB_URL
+
+const dbUrl = 'mongodb://localhost:27017/yelp-camp'
 
 
 
-
-mongoose.connect('mongodb://localhost:27017/yelp-camp', {
+mongoose.connect(dbUrl, {
     useNewUrlParser: true,
    
     useUnifiedTopology: true
@@ -54,7 +59,20 @@ app.use(mongoSanitize({
     replaceWith: "_"
 }));
 
+
+
+const store = MongoStore.create({
+    mongoUrl: dbUrl,
+    touchAfter: 24 * 60 * 60,
+    secret: "thisshouldbeabettersecret!",
+});
+
+store.on("error",function(e){
+    console.log('SESSION STORE ERROR',e)
+})
+
 const sessionconfig ={
+    store,
     name: "session",
     secret: "thisshouldbeabettersecret!",
     resave: false,
